@@ -10,12 +10,13 @@ export class TicketsService {
     @InjectModel('Ticket') private readonly  ticketModel: Model<Ticket>,
   ) {}
 
-  async addTickets(title: string, desc: string,date:string,status:string,remarks:string) {
+  async addTickets(title: string, desc: string,date:string,status:string,remarks:string,category:[]) {
     const newTicket = new this.ticketModel({
       title,
       description: desc,
       date,
       status,
+      category,
       remarks,
     });
     const result = await newTicket.save();
@@ -31,6 +32,7 @@ export class TicketsService {
       date: prod.date,
       status: prod.status,
       remarks: prod.remarks,
+      category: prod.category,
     }));
   }
 
@@ -42,6 +44,7 @@ export class TicketsService {
       description: ticket.description,
       date: ticket.date,
       status: ticket.status,
+      category: ticket.category,
     };
   }
 
@@ -52,6 +55,7 @@ export class TicketsService {
     date: string,
     status:string,
     remarks: string,
+    category:[],
   ) {
     const updatedProduct = await this.findProduct(productId);
     // if (title) {

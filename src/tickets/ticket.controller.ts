@@ -21,6 +21,7 @@ import {
       @Body('date') ticketDate: string,
       @Body('status') ticketStatus: string,
       @Body('remarks') ticketRemarks: string,
+      @Body('category') ticketCategory: [],
     ) {
       const generatedId = await this.productsService.addTickets(
         ticketTitle,
@@ -28,6 +29,7 @@ import {
         ticketDate,
         ticketStatus,
         ticketRemarks,
+        ticketCategory,
       );
       return { id: generatedId };
     }
@@ -51,8 +53,9 @@ import {
       @Body('date') ticketDate: string,
       @Body('status') ticketStatus: string,
       @Body('remarks') ticketRemarks: string,
+      @Body('category') ticketCategory: [],
     ) {
-      await this.productsService.updateTicket(ticketId, ticketTitle, ticketDesc, ticketDate,ticketStatus,ticketRemarks);
+      await this.productsService.updateTicket(ticketId, ticketTitle, ticketDesc, ticketDate,ticketStatus,ticketRemarks,ticketCategory);
       return "Ticket updated";
     }
   
