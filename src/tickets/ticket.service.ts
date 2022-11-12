@@ -45,6 +45,7 @@ export class TicketsService {
       date: ticket.date,
       status: ticket.status,
       category: ticket.category,
+      remarks: ticket.remarks,
     };
   }
 
