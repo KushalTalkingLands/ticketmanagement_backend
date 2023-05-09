@@ -18,6 +18,7 @@ export class TicketsService {
       status,
       category,
       remarks,
+
     });
     const result = await newTicket.save();
     return result.id as string;
@@ -33,6 +34,7 @@ export class TicketsService {
       status: prod.status,
       remarks: prod.remarks,
       category: prod.category,
+      userRemarks: prod.userRemarks,
     }));
   }
 
@@ -46,6 +48,7 @@ export class TicketsService {
       status: ticket.status,
       category: ticket.category,
       remarks: ticket.remarks,
+      userRemarks: ticket.userRemarks,
     };
   }
 
@@ -56,6 +59,7 @@ export class TicketsService {
     date: string,
     status:string,
     remarks: string,
+    userRemarks: string,
     category:[],
   ) {
     const updatedProduct = await this.findProduct(productId);
@@ -70,6 +74,9 @@ export class TicketsService {
     }
     if (remarks) {
         updatedProduct.remarks = remarks;
+      }
+    if (userRemarks) {
+        updatedProduct.userRemarks = userRemarks;
       }
     updatedProduct.save();
   }

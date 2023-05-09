@@ -54,8 +54,9 @@ import {
       @Body('status') ticketStatus: string,
       @Body('remarks') ticketRemarks: string,
       @Body('category') ticketCategory: [],
+      @Body('userRemarks') ticketUserRemarks: string,
     ) {
-      await this.productsService.updateTicket(ticketId, ticketTitle, ticketDesc, ticketDate,ticketStatus,ticketRemarks,ticketCategory);
+      await this.productsService.updateTicket(ticketId, ticketTitle, ticketDesc, ticketDate,ticketStatus,ticketRemarks,ticketUserRemarks,ticketCategory);
       return "Ticket updated";
     }
   

@@ -7,6 +7,7 @@ export const TicketSchema = new mongoose.Schema({
   status: { type: String, required: true},
   category: { type: [], required: true},
   remarks: { type: String},
+  userRemarks:{type: String},
 });
 
 export interface Ticket extends mongoose.Document {
@@ -17,4 +18,5 @@ export interface Ticket extends mongoose.Document {
   status: string;
   category: [];
   remarks: string;
+  userRemarks: string;
 }
