@@ -7,10 +7,18 @@ import { Ticket } from './ticket.model';
 @Injectable()
 export class TicketsService {
   constructor(
-    @InjectModel('Ticket') private readonly  ticketModel: Model<Ticket>,
+    @InjectModel('Ticket') private readonly ticketModel: Model<Ticket>,
   ) {}
 
-  async addTickets(title: string, desc: string,date:string,status:string,remarks:string,category:[]) {
+  async addTickets(
+    title: string,
+    desc: string,
+    date: string,
+    status: string,
+    remarks: string,
+    category: [],
+    ownerId: string,
+  ) {
     const newTicket = new this.ticketModel({
       title,
       description: desc,
@@ -18,23 +26,39 @@ export class TicketsService {
       status,
       category,
       remarks,
-
+      ownerId,
     });
     const result = await newTicket.save();
     return result.id as string;
   }
 
-  async getTickets() {
+  async getTicketsForUser(ownerId: string) {
+    const tickets = await this.ticketModel.find({ ownerId }).exec();
+    return tickets.map((ticket) => ({
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      date: ticket.date,
+      status: ticket.status,
+      remarks: ticket.remarks,
+      category: ticket.category,
+      userRemarks: ticket.userRemarks,
+      ownerId: ticket.ownerId.toString(),
+    }));
+  }
+
+  async getAllTickets() {
     const tickets = await this.ticketModel.find().exec();
-    return tickets.map(prod => ({
-      id: prod.id,
-      title: prod.title,
-      description: prod.description,
-      date: prod.date,
-      status: prod.status,
-      remarks: prod.remarks,
-      category: prod.category,
-      userRemarks: prod.userRemarks,
+    return tickets.map((ticket) => ({
+      id: ticket.id,
+      title: ticket.title,
+      description: ticket.description,
+      date: ticket.date,
+      status: ticket.status,
+      remarks: ticket.remarks,
+      category: ticket.category,
+      userRemarks: ticket.userRemarks,
+      ownerId: ticket.ownerId ? ticket.ownerId.toString() : undefined,
     }));
   }
 
@@ -49,6 +73,7 @@ export class TicketsService {
       category: ticket.category,
       remarks: ticket.remarks,
       userRemarks: ticket.userRemarks,
+      ownerId: ticket.ownerId ? ticket.ownerId.toString() : undefined,
     };
   }
 
@@ -57,10 +82,10 @@ export class TicketsService {
     title: string,
     desc: string,
     date: string,
-    status:string,
+    status: string,
     remarks: string,
     userRemarks: string,
-    category:[],
+    category: [],
   ) {
     const updatedProduct = await this.findProduct(productId);
     // if (title) {
@@ -73,11 +98,11 @@ export class TicketsService {
       updatedProduct.status = status;
     }
     if (remarks) {
-        updatedProduct.remarks = remarks;
-      }
+      updatedProduct.remarks = remarks;
+    }
     if (userRemarks) {
-        updatedProduct.userRemarks = userRemarks;
-      }
+      updatedProduct.userRemarks = userRemarks;
+    }
     updatedProduct.save();
   }
 

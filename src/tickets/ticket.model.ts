@@ -4,10 +4,15 @@ export const TicketSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: { type: String, required: true },
   date: { type: String, required: true },
-  status: { type: String, required: true},
-  category: { type: [], required: true},
-  remarks: { type: String},
-  userRemarks:{type: String},
+  status: { type: String, required: true },
+  category: { type: [], required: true },
+  remarks: { type: String },
+  userRemarks: { type: String },
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 
 export interface Ticket extends mongoose.Document {
@@ -19,4 +24,5 @@ export interface Ticket extends mongoose.Document {
   category: [];
   remarks: string;
   userRemarks: string;
+  ownerId: string;
 }
