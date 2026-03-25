@@ -2,17 +2,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
-import { Ticket } from './ticket.model';
+import { Ticket, TicketDocument } from './schemas/ticket.schema';
 
 @Injectable()
 export class TicketsService {
   constructor(
-    @InjectModel('Ticket') private readonly ticketModel: Model<Ticket>,
+    @InjectModel('Ticket') private readonly ticketModel: Model<TicketDocument>,
   ) {}
 
   async addTickets(
     title: string,
     desc: string,
+    vehicle: string,
     date: string,
     status: string,
     remarks: string,
@@ -22,6 +23,7 @@ export class TicketsService {
     const newTicket = new this.ticketModel({
       title,
       description: desc,
+      vehicle,
       date,
       status,
       category,
@@ -35,7 +37,7 @@ export class TicketsService {
   async getTicketsForUser(ownerId: string) {
     const tickets = await this.ticketModel.find({ ownerId }).exec();
     return tickets.map((ticket) => ({
-      id: ticket.id,
+      id: ticket._id.toString(),
       title: ticket.title,
       description: ticket.description,
       date: ticket.date,
@@ -43,14 +45,20 @@ export class TicketsService {
       remarks: ticket.remarks,
       category: ticket.category,
       userRemarks: ticket.userRemarks,
+      vehicle: ticket.vehicle,
+      createdAt: ticket.createdAt,
+      technician: ticket.technician,
       ownerId: ticket.ownerId.toString(),
     }));
   }
 
   async getAllTickets() {
-    const tickets = await this.ticketModel.find().exec();
+    const tickets = await this.ticketModel
+      .find()
+      .sort({ createdAt: -1 })
+      .exec();
     return tickets.map((ticket) => ({
-      id: ticket.id,
+      id: ticket._id.toString(),
       title: ticket.title,
       description: ticket.description,
       date: ticket.date,
@@ -58,6 +66,9 @@ export class TicketsService {
       remarks: ticket.remarks,
       category: ticket.category,
       userRemarks: ticket.userRemarks,
+      vehicle: ticket.vehicle,
+      createdAt: ticket.createdAt,
+      technician: ticket.technician,
       ownerId: ticket.ownerId ? ticket.ownerId.toString() : undefined,
     }));
   }
@@ -65,7 +76,7 @@ export class TicketsService {
   async getSingleTicket(productId: string) {
     const ticket = await this.findProduct(productId);
     return {
-      id: ticket.id,
+      id: ticket._id.toString(),
       title: ticket.title,
       description: ticket.description,
       date: ticket.date,
@@ -77,33 +88,29 @@ export class TicketsService {
     };
   }
 
-  async updateTicket(
-    productId: string,
-    title: string,
-    desc: string,
-    date: string,
-    status: string,
-    remarks: string,
-    userRemarks: string,
-    category: [],
-  ) {
-    const updatedProduct = await this.findProduct(productId);
-    // if (title) {
-    //   updatedProduct.title = title;
-    // }
-    // if (desc) {
-    //   updatedProduct.description = desc;
-    // }
-    if (status) {
-      updatedProduct.status = status;
+  async findAll(): Promise<TicketDocument[]> {
+    return this.ticketModel.find().sort({ createdAt: -1 }).exec();
+  }
+
+  async updateStatus(
+    id: string,
+    status: 'open' | 'in_progress' | 'completed',
+    technician?: Ticket['technician'],
+  ): Promise<TicketDocument> {
+    const update: Partial<Ticket> = { status };
+    if (technician) {
+      update.technician = technician;
     }
-    if (remarks) {
-      updatedProduct.remarks = remarks;
+
+    const updated = await this.ticketModel
+      .findByIdAndUpdate(id, update, { new: true })
+      .exec();
+
+    if (!updated) {
+      throw new NotFoundException('Could not find ticket.');
     }
-    if (userRemarks) {
-      updatedProduct.userRemarks = userRemarks;
-    }
-    updatedProduct.save();
+
+    return updated;
   }
 
   async deleteTicket(prodId: string) {
@@ -114,8 +121,8 @@ export class TicketsService {
     }
   }
 
-  private async findProduct(id: string): Promise<Ticket> {
-    let ticket;
+  private async findProduct(id: string): Promise<TicketDocument> {
+    let ticket: TicketDocument | null;
     try {
       ticket = await this.ticketModel.findById(id).exec();
     } catch (error) {
